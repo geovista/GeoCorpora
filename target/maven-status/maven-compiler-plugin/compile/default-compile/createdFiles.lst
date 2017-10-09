@@ -1,0 +1,7 @@
+edu/psu/geovista/geocorpora/GeoCorporaSurrogate.class
+edu/psu/geovista/geocorpora/Utils.class
+edu/psu/geovista/geocorpora/GetTweets.class
+edu/psu/geovista/geocorpora/GeoCorporaTweet.class
+edu/psu/geovista/geocorpora/GeoCorporaTweets.class
+edu/psu/geovista/geocorpora/CorpusFromCSV.class
+edu/psu/geovista/geocorpora/GeoCorporaLocation.class
