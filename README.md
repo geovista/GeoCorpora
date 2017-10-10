@@ -1,5 +1,5 @@
 # GeoCorpora
-The GeoCorpora project aims at creating corpora of fully geo-annotated texts (in particular microblog texts) and developing tools to support the corpus building process using crowd-sourcing and visual analytics approaches. Created corpora will be made publicly available in this repository. A first corpus of ~6000 geo-annotated tweets will be published here in the near future.
+The GeoCorpora project aims at creating corpora of fully geo-annotated texts (in particular microblog texts) and developing tools to support the corpus building process using crowd-sourcing and visual analytics approaches. The created corpora is publicly available in this repository. A first corpus of ~6000 geo-annotated tweets has been published in geocorpora_1506879947339.tsv along with Java code to help parsing the corpora and acquiring the tweet text.
 
 ### Tutorial
 Begin by adding your Twitter API credentials to the resources file resources/edu/psu/geovista/geocorpora/geocorpora.properties
