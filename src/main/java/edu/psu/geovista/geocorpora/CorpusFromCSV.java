@@ -9,12 +9,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,7 +54,11 @@ public final class CorpusFromCSV {
             pathToCSVFile = args[0];
         }
 
-        CorpusFromCSV corpus = new CorpusFromCSV(pathToCSVFile);
+        InputStream input = CorpusFromCSV.class.getResourceAsStream("geocorpora.properties");
+    	Properties prop = new Properties();
+    	prop.load(input);
+        
+        CorpusFromCSV corpus = new CorpusFromCSV(prop.getProperty("workingDirectory") + pathToCSVFile);
 
         GeoCorporaTweet geoCorporaTweet = null;
         while ((geoCorporaTweet = corpus.nextTweet(true, true, true, true, true)) != null) {
@@ -68,8 +74,8 @@ public final class CorpusFromCSV {
                                 + geoCorporaTweet.getTweetId() + " has the desired type.");
             }
         }
-
-        String pathToCSVFileWithTweetText = FilenameUtils.getFullPath(pathToCSVFile) + 
+        
+        String pathToCSVFileWithTweetText = prop.getProperty("workingDirectory") + 
                 FilenameUtils.getBaseName(pathToCSVFile) + "_withTweetText." 
                 + FilenameUtils.getExtension(pathToCSVFile);
         corpus.writeCorpusToCSV(pathToCSVFileWithTweetText);
@@ -120,7 +126,8 @@ public final class CorpusFromCSV {
 
     public HashMap<String, GeoCorporaTweet> readCorpusFromCSV(String filePath) throws UnsupportedEncodingException, 
             FileNotFoundException, IOException {
-        Reader in = new InputStreamReader(CorpusFromCSV.class.getResourceAsStream(filePath), "UTF-8");
+    	
+        Reader in = new InputStreamReader(new FileInputStream(filePath), "UTF-8");
         Iterable<CSVRecord> records = CSVFormat.TDF.withFirstRecordAsHeader().withEscape('\\').parse(in);
 
         HashMap<String, GeoCorporaTweet> geoCorporaTweets = new HashMap<>();
