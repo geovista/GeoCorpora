@@ -120,7 +120,7 @@ public final class CorpusFromCSV {
 
     public HashMap<String, GeoCorporaTweet> readCorpusFromCSV(String filePath) throws UnsupportedEncodingException, 
             FileNotFoundException, IOException {
-        Reader in = new InputStreamReader(new FileInputStream(filePath), "UTF-8");
+        Reader in = new InputStreamReader(CorpusFromCSV.class.getResourceAsStream(filePath), "UTF-8");
         Iterable<CSVRecord> records = CSVFormat.TDF.withFirstRecordAsHeader().withEscape('\\').parse(in);
 
         HashMap<String, GeoCorporaTweet> geoCorporaTweets = new HashMap<>();
