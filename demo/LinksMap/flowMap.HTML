@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<!--
+  Next steps: add an option to switch source and target, so that nodes and links show which places are talking about a particular place.
+  Adjust circle sizes. Right now it's harcked to have a palatable output (otherwise US would be too big)'
+  use country polygons instead of circles. potentially use bivariate color scheme.
+  change the classification from equal intervals to jenks (for colors).
+  see how the map can help with solving disambiguation.
+  -->
+
+<meta charset="utf-8">
+<title>Tweets Geographic Scope</title>
+
+<link rel="stylesheet" href="leaflet.css" />
+
+<style>
+  body {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    font-family: sans-serif;
+  }
+  
+  #map {
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    height: 100%;
+  }
+  
+  path {
+    fill: none;
+    stroke: #4682B4;
+    stroke-opacity: 0.6;
+    stroke-linecap: round;
+    cursor: pointer;
+  }
+  
+  path:hover {
+    stroke-opacity: 0.8;
+    stroke: #315B7E;
+  }
+  
+  .curvesettings {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+  }
+  
+  .box {
+    border: 1px solid #EEE;
+    margin: 3px;
+    padding: 5px;
+    background-color: white;
+    font-family: sans-serif;
+    font-size: 12px;
+  }
+  
+  .title {
+    font-weight: 600;
+  }
+  
+  .source {
+    position: absolute;
+    width: 50%;
+    top: 6px;
+    left: 50px;
+  }
+  
+  .legend {
+    line-height: 18px;
+    color: #555;
+  }
+  
+  .legend i {
+    border-radius: 50%;
+    border:1px solid black;
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+    margin-top: 8px;
+  }
+</style>
+
+<body>
+  <div id="map"></div>
+  <form class="curvesettings">
+    <div class="box">
+      <div class="title">Curve settings</div>
+      <div>Hover over nodes<br> to see links.</div>
+      <div>Change styles using<br> radio buttons.</div>
+    </div>
+
+    <div class="box">
+      <div class="title">Curve shape</div>
+      <input type="radio" name="use_arcs" value="0" checked>Beziers<br>
+      <input type="radio" name="use_arcs" value="1">Arcs<br>
+    </div>
+    <div class="box">
+      <div class="title">Flip at horizontal axis</div>
+      <input type="radio" name="flip" value="1" checked>Flip<br>
+      <input type="radio" name="flip" value="0">NoFlip<br>
+    </div>
+    <div class="box">
+      <div class="title">Set curve steepness X</div>
+      <div>(bezier control point)</div>
+      <input type="radio" name="xshift" value="0.1" checked>xshift 0.1<br>
+      <input type="radio" name="xshift" value="0.4">xshift 0.4<br>
+      <input type="radio" name="xshift" value="0.8">xshift 0.8<br>
+      <input type="radio" name="xshift" value="1.6">xshift 1.6<br>
+    </div>
+    <div class="box">
+      <div class="title">Set curve steepness Y</div>
+      <div>(bezier control point)</div>
+      <input type="radio" name="yshift" value="0.1" checked>yshift 0.1<br>
+      <input type="radio" name="yshift" value="0.4">yshift 0.4<br>
+      <input type="radio" name="yshift" value="0.8">yshift 0.8<br>
+      <input type="radio" name="yshift" value="1.6">yshift 1.6<br>
+    </div>
+  </form>
+  <div class="source box">
+    <div class="title">Geographic Scope of Tweets</div>
+    This interactive map shows the proportion of tweets discussing places within a country and the ones that mention places in
+    other countries, visually linking the other countries that are mentioned from Twitter users in each country. The visualization
+    relies heavily on <a href="https://github.com/geodesign/spatialsankey" target="_blank"> Spatialsankey</a>. Mouse
+    over circles to see links and numbers. Read <a href="AboutFlowMaps.htm" target="_blank">here</a> to learn more about
+    the map.
+  </div>
+</body>
+
+<script src="d3.v3.min.js"></script>
+<script src="leaflet.js"></script>
+<script src="countries.json"></script>
+<script src="spatialsankey.js"></script>
+<script type="text/javascript">
+  // Set leaflet map
+  var map = new L.map('map', {
+    center: new L.LatLng(20, 15),
+    zoom: 3,
+    minZoom: 2,
+    maxZoom: 6,
+    layers: [
+      new L.tileLayer('http://{s}tile.stamen.com/toner-lite/{z}/{x}/{y}.png', {
+        subdomains: ['', 'a.', 'b.', 'c.', 'd.'],
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
+      })
+    ]
+  });
+
+
+
+  var legend = L.control({ position: 'bottomleft' });
+
+
+
+  legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend');
+
+    div.innerHTML = '<b>Legend:</b><br><br> '
+      + '<i style="background:purple"></i>Tweets mentioning places within the same country<br> ' + '<br>'
+      + '<i style="background:yellow"></i>Tweets mentioning places in other countries<br> ' + '<br>';
+
+    return div;
+
+  }
+
+  legend.addTo(map);
+
+  // Initialize the SVG layer
+  map._initPathRoot()
+
+  // Setup svg element to work with
+  var svg = d3.select("#map").select("svg"),
+    linklayer = svg.append("g"),
+    nodelayer = svg.append("g");
+
+  // Load data asynchronosuly
+  d3.json("nodes.geojson", function (nodes) {
+    d3.csv("links.csv", function (links) {
+
+      // Setup spatialsankey object
+      var spatialsankey = d3.spatialsankey()
+        .lmap(map)
+        .nodes(nodes.features)
+        .links(links);
+
+      var mouseover = function (d) {
+
+        // Get link data for this node
+        var nodelinks = spatialsankey.links().filter(function (link) {
+          return link.source == d.id;
+        });
+
+        // Add data to link layer
+        var beziers = linklayer.selectAll("path").data(nodelinks);
+        link = spatialsankey.link(options);
+
+        // Draw new links
+        beziers.enter()
+          .append("path")
+          .attr("d", link)
+          .attr('id', function (d) { return d.id })
+          .style("stroke-width", spatialsankey.link().width());
+
+        // Remove old links
+        beziers.exit().remove();
+
+        // Hide inactive nodes
+        var circleUnderMouse = this;
+        circs.transition().style('opacity', function () {
+          return (this === circleUnderMouse) ? 0.7 : 0.25;
+        });
+        circs2.transition().style('opacity', function () {
+          return (this === circleUnderMouse) ? 0.7 : 0.25;
+        });
+      };
+
+      var mouseout = function (d) {
+        // Remove links
+        linklayer.selectAll("path").remove();
+        // Show all nodes
+        circs.transition().style('opacity', 0.5);
+        circs2.transition().style('opacity', 0.6);
+
+      };
+
+      // Draw nodes
+      //Morteza passed minradius and maxradius. If not passed, they are set to 10 and 20 in the source library.
+      //for now, a good visual representation is produced using a hack here and in spatialsankey.js under node.r and node.dd using a multiplication. 
+      //Look for HACK in the spatialsankey.js file.
+      var node = spatialsankey.node({ minradius: 5, maxradius: 10 })
+      var circsContain = nodelayer.selectAll("circle")
+        .data(spatialsankey.nodes())
+        .enter();
+
+
+      var circs2 = circsContain.append("circle")
+        .attr("cx", node.cx)
+        .attr("cy", node.cy)
+        .attr("r", node.dd)
+        .style("fill", "purple") // .style("fill", '#003300')
+        .attr("opacity", 0.6)
+        .attr("stroke", "purple")
+        .attr("stroke-width", "2");
+
+
+      circs2.append("svg:title")
+        .text(node.toolTip);
+
+      // var circs2 = circsContain.append("rect")
+      // .attr("x", node.cx)
+      // .attr("y", node.cy)
+      // .attr("height", node.dd)
+      // .attr("width", node.dd)
+      // .style("fill", '#006600')
+      // .attr("opacity", 0.6);
+
+
+      var circs = circsContain.append("circle")
+        .attr("cx", node.cx)
+        .attr("cy", node.cy)
+        .attr("r", node.r)
+        .style("fill", node.fill)
+        .attr("opacity", 0.5)
+        .attr("stroke", "black")
+        .on('mouseover', mouseover)
+        .on('mouseout', mouseout);
+
+      circs.append("svg:title")
+        .text(node.toolTip);
+
+
+
+
+      // Adopt size of drawn objects after leaflet zoom reset
+      var zoomend = function () {
+        linklayer.selectAll("path").attr("d", spatialsankey.link());
+
+        circs.attr("cx", node.cx)
+          .attr("cy", node.cy);
+
+        circs2.attr("cx", node.cx)
+          .attr("cy", node.cy);
+
+      };
+
+      map.on("zoomend", zoomend);
+    });
+  });
+
+
+  var options = { 'use_arcs': false, 'flip': false };
+  d3.selectAll("input").forEach(function (x) {
+    options[x.name] = parseFloat(x.value);
+  })
+
+  d3.selectAll("input").on("click", function () {
+    options[this.name] = parseFloat(this.value);
+  });
+
+</script>
