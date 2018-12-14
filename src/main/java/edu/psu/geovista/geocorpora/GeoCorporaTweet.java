@@ -15,6 +15,12 @@ public class GeoCorporaTweet {
 
     private String tweetId;
     private String tweetText;
+    private String tweetCreatedAt;
+    private String tweetUserLocation;
+    private String tweetUserTimeZone;
+    private double tweetCoordinatesLatitude;
+    private double tweetCoordinatesLongitude;
+    private String tweetPlaceId;
     private final ArrayList<GeoCorporaLocation> geoCorporaLocations;
     private boolean containsUncertainSemantics;
     private boolean containsNonOverlappingAmbiguous;
@@ -55,7 +61,7 @@ public class GeoCorporaTweet {
             boolean containsOverlappingAmbiguous, boolean containsVague, boolean containsNotInGeonames) {
         index++;
         GeoCorporaLocation location = null;
-        if (index < this.geoCorporaLocations.size()) {
+        if (this.geoCorporaLocations != null && index < this.geoCorporaLocations.size()) {
             location = this.geoCorporaLocations.get(index - 1);
             while (!testLocation(location, containsUncertainSemantics, containsNonOverlappingAmbiguous,
                     containsOverlappingAmbiguous, containsVague, containsNotInGeonames) 
@@ -105,6 +111,54 @@ public class GeoCorporaTweet {
         return tweetText;
     }
 
+    public String getTweetCreatedAt() {
+        return tweetCreatedAt;
+    }
+
+    public void setTweetCreatedAt(String tweetCreatedAt) {
+        this.tweetCreatedAt = tweetCreatedAt;
+    }
+
+    public String getTweetUserLocation() {
+        return tweetUserLocation;
+    }
+
+    public void setTweetUserLocation(String tweetUserLocation) {
+        this.tweetUserLocation = tweetUserLocation;
+    }
+
+    public String getTweetUserTimeZone() {
+        return tweetUserTimeZone;
+    }
+
+    public void setTweetUserTimeZone(String tweetUserTimezone) {
+        this.tweetUserTimeZone = tweetUserTimezone;
+    }
+
+    public double getTweetCoordinatesLatitude() {
+        return tweetCoordinatesLatitude;
+    }
+
+    public void setTweetCoordinatesLatitude(double tweetCoordinatesLatitude) {
+        this.tweetCoordinatesLatitude = tweetCoordinatesLatitude;
+    }
+
+    public double getTweetCoordinatesLongitude() {
+        return tweetCoordinatesLongitude;
+    }
+
+    public void setTweetCoordinatesLongitude(double tweetCoordinatesLongitude) {
+        this.tweetCoordinatesLongitude = tweetCoordinatesLongitude;
+    }
+
+    public String getTweetPlaceId() {
+        return tweetPlaceId;
+    }
+
+    public void setTweetPlaceId(String tweetPlaceId) {
+        this.tweetPlaceId = tweetPlaceId;
+    }
+    
     public ArrayList<GeoCorporaLocation> getGeoCorporaLocations() {
         return geoCorporaLocations;
     }
