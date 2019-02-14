@@ -8,7 +8,7 @@ Wallgrün, J. O., Karimzadeh, M., Pezanowski, S., & MacEachren, A. M. (2017). Ge
 
 If you find the GeoCorpora valuable in your research. Please cite this publication.
 
-An earlier publication on related work can be found here:
+Another publication on related work using GeoCorpora can be found here:
 
 Karimzadeh, M., Pezanowski, S., Wallgrün, J. O., MacEachren, A. M., & Wallgrün, J. O. (2019). GeoTxt: A scalable geoparsing system for unstructured text geolocation. Transactions in GIS, 23(1), 118–136. https://doi.org/10.1111/tgis.12510
 
