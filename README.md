@@ -10,7 +10,7 @@ If you find the GeoCorpora valuable in your research. Please cite this publicati
 
 An earlier publication on related work can be found here:
 
-Karimzadeh, M., Huang, W., Banerjee, S., Wallgrün, J. O., Hardisty, F., Pezanowski, S., … MacEachren, A. M. (2013). GeoTxt: A Web API to Leverage Place References in Text. In Proceedings of the 7th Workshop on Geographic Information Retrieval (pp. 72–73). New York, NY, USA: ACM. https://doi.org/10.1145/2533888.2533942
+Karimzadeh, M., Pezanowski, S., Wallgrün, J. O., MacEachren, A. M., & Wallgrün, J. O. (2019). GeoTxt: A scalable geoparsing system for unstructured text geolocation. Transactions in GIS, 23(1), 118–136. https://doi.org/10.1111/tgis.12510
 
 ### Tutorial
 Begin by adding your Twitter API credentials to the resources file resources/edu/psu/geovista/geocorpora/geocorpora.properties
